@@ -1135,17 +1135,19 @@ async function addHist(entry){
   h.unshift(entry);
   saveHist(h);
   // Sync to Supabase
-  const sb=getSB();
-  if(sb&&_currentUser){
-    await sb.from('optimizations').upsert({
-      id: entry.id,
-      user_id: _currentUser.id,
-      job_title: entry.jobTitle||'',
-      file_name: entry.fileName||'',
-      ats_score: entry.atsScore||0,
-      status: entry.status||'completed'
-    });
-  }
+  try{
+    const sb=getSB();
+    if(sb&&_currentUser){
+      await sb.from('optimizations').upsert({
+        id: entry.id,
+        user_id: _currentUser.id,
+        job_title: entry.jobTitle||'',
+        file_name: entry.fileName||'',
+        ats_score: entry.atsScore||0,
+        status: entry.status||'completed'
+      });
+    }
+  }catch(e){ console.warn('addHist Supabase sync failed:',e); }
 }
 function confirmModal(msg, onYes){
   let m=document.getElementById('_confirmModal');
@@ -3200,8 +3202,8 @@ async function startOptimization(){
     // Save to history
     const _sessId=Date.now();
     state.currentSessionId=_sessId;
-    await addHist({ id:_sessId, jobTitle:state.jobTitle||extractJobTitle(state.jdText), fileName:state.fileName, atsScore:data.atsScore||0, status:'completed' });
-    await saveSessionData(_sessId, data);
+    try{ await addHist({ id:_sessId, jobTitle:state.jobTitle||extractJobTitle(state.jdText), fileName:state.fileName, atsScore:data.atsScore||0, status:'completed' }); }catch(e){ console.warn('addHist failed:',e); }
+    try{ await saveSessionData(_sessId, data); }catch(e){ console.warn('saveSessionData failed:',e); }
 
     renderResults(data);
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -3546,13 +3548,4 @@ function renderSkills(data){
   const total=present+missing;
   [['stTotal',total],['stMatch',present],['stMiss',missing],
    ['skTotal',total],['skPresent',present],['skMissing',missing],
-   ['skRate',total?Math.round(present/total*100)+'%':'0%']].forEach(([id,val])=>{
-    const el=document.getElementById(id); if(el) el.textContent=val;
-  });
-}
-
-/* INIT */
-initAuth().catch(e=>{ console.error('initAuth failed:',e); showView('dashboard'); });
-</script>
-</body>
-</html>
+   ['skRate',total?Math.round(present/total*100)+'%':'0%']].forEach(([id,va
