@@ -2423,11 +2423,11 @@ function showSectionPicker(keyword, anchorEl){
         </div>
         <div class="sp-dialog-footer">
           <button class="sg-cancel-btn" onclick="closeSgPanel()">Cancel</button>
-          <button class="sp-gen-btn" id="spGenBtn" disabled onclick="spBeginGenerate()">
+          <button class="sp-gen-btn" id="spGenBtn" disabled onclick="spAddDirectly()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
-            Generate with AI
+            Add to Section
           </button>
         </div>
       </div>
@@ -2494,7 +2494,7 @@ function spSelectSection(idx){
   if(btn) btn.disabled = false;
 }
 
-async function spBeginGenerate(){
+async function spAddDirectly(){
   if(!_sg || !_sg.section) return;
 
   // Show loading state
@@ -2568,7 +2568,7 @@ function showSkillGapPanel(keyword, section){
   showSectionPicker(keyword, fakeAnchor);
   // Pre-select the provided section
   spSelectSection(0);
-  spBeginGenerate();
+  spAddDirectly();
 }
 
 
