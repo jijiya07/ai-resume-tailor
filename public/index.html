@@ -1444,9 +1444,32 @@ function renderDashboard(){
    FILE HANDLING
 ══════════════════════════════════════════ */
 function resetOptimizer(){
-  // Don't clear if already has data (user going back from results)
-  state.pdfBytes=null; state.pdfRenderKey='';
+  // Reset state
+  state.resumeText=''; state.jdText=''; state.fileName='';
+  state.pdfBytes=null; state.pdfRenderKey=''; state.currentHistId=null;
+  if(state.resumeBlobUrl){ URL.revokeObjectURL(state.resumeBlobUrl); state.resumeBlobUrl=''; }
+
+  // Reset resume upload area
+  const dz=document.getElementById('dropzone');
+  const fi=document.getElementById('fileInput');
+  const parseOk=document.getElementById('parseOk');
+  if(dz) dz.classList.remove('hidden');
+  if(fi) fi.value='';
+  if(parseOk) parseOk.classList.add('hidden');
+
+  // Reset job description
+  const jdEl=document.getElementById('jdText');
+  if(jdEl) jdEl.value='';
+
+  // Reset job title
+  const jtEl=document.getElementById('jobTitleInput');
+  if(jtEl) jtEl.value='';
+
+  // Reset PDF pages
   const c=document.getElementById('pdfOrigPages'); if(c){c.innerHTML='';c.dataset.rendered='';}
+
+  // Reset CTA
+  updateCTA();
 }
 
 const dz=document.getElementById('dropzone');
@@ -3539,13 +3562,4 @@ function renderAnalysis(data){
   }
   const mkw=document.getElementById('missingKW');
   if(mkw&&data.missingKeywords?.length){
-    mkw.innerHTML=data.missingKeywords.map(k=>`<span style="display:inline-block;margin:2px;padding:2px 8px;background:#fef3c7;border-radius:4px;font-size:12px">${escH(k)}</span>`).join('');
-  }
-}
-function renderSkills(data){
-  const present=(data.presentSkills||[]).filter(isValidSkill).length;
-  const missing=filterSkills([...(data.missingSkills?.technical||[]),...(data.missingSkills?.tools||[]),...(data.missingSkills?.soft||[]),...(data.missingSkills?.certifications||[])]).length;
-  const total=present+missing;
-  [['stTotal',total],['stMatch',present],['stMiss',missing],
-   ['skTotal',total],['skPresent',present],['skMissing',missing],
-   ['skRate',total?Math.round(present/total*100)+'%':'0%']].forEach(([id,va
+    mkw.innerHTML=data.missingKeywords.map(k=
